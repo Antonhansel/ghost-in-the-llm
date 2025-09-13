@@ -1,0 +1,11 @@
+{
+  "user_identifiers": [
+    "Antonin",
+    "antonin",
+    "Anto",
+    "anto"
+  ],
+  "user_label": "A:",
+  "other_label": "B:",
+  "description": "Configuration for identifying the user's messages in chat data. The user_identifiers list contains variations of the user's name/pseudonyms that should be normalized to 'A:' in the training data."
+}

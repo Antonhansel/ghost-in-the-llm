@@ -1,0 +1,95 @@
+# =========================
+# Ghost in the shell — Axolotl QLoRA config (Mistral-7B base)
+# =========================
+
+# --- Base model ---
+base_model: mistralai/Mistral-7B-v0.3
+trust_remote_code: true
+
+# --- QLoRA (4-bit) ---
+load_in_4bit: true
+bnb_4bit_quant_type: nf4
+bnb_4bit_compute_dtype: bfloat16   # A100/H100-friendly
+
+adapter: lora
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_modules_to_save: [embed_tokens, lm_head]   # keep heads when merging/exporting
+
+# --- Data ---
+datasets:
+  - path: ./train.jsonl
+    type: completion
+    field: text
+    train_on_inputs: true      # Learn from conversation context
+eval_datasets:
+  - path: ./val.jsonl
+    type: completion
+    field: text
+    train_on_inputs: true      # Learn from conversation context
+
+# --- Sequence / packing ---
+sequence_len: 1024
+sample_packing: true
+eval_sample_packing: true
+pad_to_sequence_len: true
+
+# --- Attention impl (for packing) ---
+sdp_attention: true            # uses PyTorch SDPA
+
+# --- Batching (Axolotl-style) ---
+micro_batch_size: 1
+gradient_accumulation_steps: 64
+eval_batch_size: 1
+
+# --- Training ---
+num_epochs: 8         # Axolotl-specific epoch parameter
+max_steps: -1         # Let epochs control training duration
+auto_resume_from_checkpoints: true  # Let Axolotl handle resume automatically  
+optimizer: adamw_torch
+learning_rate: 5e-5  # Standard LR for fresh training
+weight_decay: 0.01
+warmup_ratio: 0.05   # Standard warmup for fresh training
+lr_scheduler_type: cosine       # nicer LR curve
+gradient_checkpointing: true
+
+# --- Precision (A100/H100) ---
+bf16: true
+tf32: true
+
+# --- Logging / eval / saves ---
+report_to: ["wandb"]     # log to both
+run_name: "mistral7b-qlora-v1"
+wandb_project: "ghost-in-the-shell"
+wandb_tags: ["qlora","mistral7b","completion"]
+
+log_level: "info"
+logging_first_step: true
+logging_steps: 5
+
+evaluation_strategy: "steps"
+eval_steps: 50                           # more frequent evals
+eval_accumulation_steps: 1
+
+save_strategy: "steps"
+save_steps: 200
+save_total_limit: 2
+load_best_model_at_end: true
+metric_for_best_model: "eval_loss"
+greater_is_better: false
+
+output_dir: ./outputs  # Original output directory with checkpoint-242
+
+# --- Dataloader safety/perf ---
+dataloader_num_workers: 4
+dataloader_prefetch_factor: 2
+dataset_processes: 8
+
+# --- Merge settings ---
+# merge_lora: true
+# adapter: ./outputs/checkpoint-490
+# output_dir: ./merged-mistral7b
+# save_safetensors: true
+# dtype: float16

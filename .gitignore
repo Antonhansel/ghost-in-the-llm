@@ -1,0 +1,54 @@
+# Exclude actual data files but keep folder structure
+data/raw/whatsapp/*.txt
+data/raw/whatsapp/*.json
+data/raw/whatsapp/*.csv
+data/raw/messenger/*.json
+data/raw/telegram/*.json
+data/processed/*.jsonl
+data/processed/*.csv
+data/output/*
+data/cleaned/*.csv
+models/*.safetensors
+models/*.bin
+models/*.pt
+models/*.pth
+logs/*.log
+logs/*.txt
+checkpoint-backup.tar.gz
+blog.md
+
+# Keep folder structure by adding .gitkeep files
+!data/raw/whatsapp/.gitkeep
+!data/raw/messenger/.gitkeep
+!data/raw/telegram/.gitkeep
+!data/processed/.gitkeep
+!data/output/.gitkeep
+!data/cleaned/.gitkeep
+!models/.gitkeep
+!logs/.gitkeep
+
+# System files
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+weights/
+.cog/
