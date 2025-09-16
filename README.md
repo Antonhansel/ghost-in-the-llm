@@ -6,6 +6,21 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 
 **Goal**: Fine-tune Mistral-7B on ~70k personal chat messages to replicate your authentic conversation style.
 
+### 📊 Training Results Summary
+
+![All Training Runs](images/all_runs.png)
+*Complete training history showing iterative improvements and debugging phases*
+
+![Final Successful Run](images/last_run_only.png)
+*Final 8-epoch training run with stable convergence (loss ~1.7)*
+
+**Key Metrics**:
+- **Final Loss**: ~1.7 (stable convergence from ~3.4)
+- **Training Time**: 16 hours on H100 (final successful run)
+- **Total Cost**: ~$100 (including experimentation), ~$48 for final training
+- **Convergence**: Smooth, no overfitting or gradient explosions
+- **Memory Efficiency**: ~7.8 GiB VRAM usage
+
 | Feature | Description |
 |---------|-------------|
 | **Input** | Variable context window (6-12 previous messages) |
