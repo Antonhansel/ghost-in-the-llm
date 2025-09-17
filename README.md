@@ -14,20 +14,14 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 ![Final Successful Run](images/last_run_only.png)
 *Final 8-epoch training run with stable convergence (loss ~1.7)*
 
-**Key Metrics**:
-- **Final Loss**: ~1.7 (stable convergence from ~3.4)
-- **Training Time**: 16 hours on H100 (final successful run)
-- **Total Cost**: ~$100 (including experimentation), ~$48 for final training
-- **Convergence**: Smooth, no overfitting or gradient explosions
-- **Memory Efficiency**: ~7.8 GiB VRAM usage
-
 | Feature | Description |
 |---------|-------------|
 | **Input** | Variable context window (6-12 previous messages) |
 | **Output** | Next message as you would write it (style transfer, not Q&A) |
 | **Model** | Mistral-7B-v0.3 with QLoRA fine-tuning |
-| **Training** | 8 epochs, stable convergence (loss ~1.7) |
-| **Cost** | ~$48 final training (16h × $3/h on H100), ~$100 total with experimentation |
+| **Training** | 8 epochs, 16h on H100, stable convergence (loss 3.4→1.7) |
+| **Cost** | ~$48 final training, ~$200 total with experimentation |
+| **Memory** | ~7.8 GiB VRAM, ~2,180 tokens/sec |
 | **Deployment** | Replicate or Hugging Face Hub |
 
 ## 🚀 Key Features
@@ -37,7 +31,7 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 - **Multilingual Support**: Natural French/English code-switching
 - **Rolling Context**: Maintains conversation flow with last ~20 turns
 - **Privacy-First**: Built-in PII masking and data protection
-- **Cost-Effective**: QLoRA fine-tuning on cloud GPU (16 hours, ~$48 final training, ~$100 total)
+- **Cost-Effective**: QLoRA fine-tuning on cloud GPU
 
 ## 🧠 Technical Stack
 
@@ -49,12 +43,9 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 - **Target Modules**: All linear layers (q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj)
 
 ### Training Configuration
-- **Sequence Length**: 1024 tokens
-- **Batch Size**: 1 micro_batch × 64 gradient_accumulation = 64 effective batch size
-- **Learning Rate**: 5e-5 with cosine scheduling
-- **Epochs**: 8 (extended training for better convergence)
-- **Optimizer**: AdamW with weight decay 0.01
-- **Hardware**: H100 PCIe with mixed precision (bf16)
+- **Sequence Length**: 1024 tokens, effective batch size 64
+- **Learning Rate**: 5e-5 with cosine scheduling, AdamW optimizer
+- **Epochs**: 8, H100 PCIe with mixed precision (bf16)
 
 ### Data Format
 ```jsonl
@@ -67,14 +58,6 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 - **Training Type**: Completion training (next-token prediction)
 - **Speakers**: A: (you) and B: (everyone else)
 
-### Training Results
-- **Initial Loss**: ~3.4
-- **Final Loss**: ~1.7 (stable convergence)
-- **Training Time**: 16 hours on H100 (final training)
-- **Cost**: ~$48 final training cost (16h × $3/h), ~$100 total with experimentation
-- **VRAM Usage**: ~7.8 GiB
-- **Throughput**: ~2,180 tokens/sec
-- **Convergence**: Smooth, no overfitting
 
 ## 📁 Project Structure
 
@@ -176,12 +159,10 @@ Follow the [Cloud Training Guide](#-cloud-training) to fine-tune Mistral-7B on y
 
 ### Why Cloud Training?
 
-| Advantage | Description |
-|-----------|-------------|
-| **Cost-effective** | ~$48 for 16 hours on H100 (final training), ~$100 total |
-| **No Setup** | No local GPU setup required |
-| **Scalable** | Access to high-end hardware (H100, A100) |
-| **Reliable** | Stable training environment |
+- **Cost-effective**: ~$48 final training, ~$200 total with experimentation
+- **No Setup**: No local GPU setup required  
+- **Scalable**: Access to high-end hardware (H100, A100)
+- **Reliable**: Stable training environment
 
 ### Training Setup
 
@@ -202,7 +183,7 @@ sudo apt update && sudo apt install -y git wget tmux python3.10-venv git-lfs jq
 git lfs install
 python3 -m venv axo && source axo/bin/activate
 
-# Install dependencies
+# Install axolotl and dependencies
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 git clone https://github.com/OpenAccess-AI-Collective/axolotl.git
 cd axolotl && pip install -e .
@@ -409,57 +390,28 @@ cog push r8.im/your-user/ghost-in-the-llm
 
 ## 🤖 Deployment Options
 
-### Replicate API
-- Fast-ish cold starts with baked-in weights (a few minutes)
-- Scalable inference, takes about 3s
-- Simple HTTP API
-
-### Hugging Face Hub
-- Private model hosting
-- Easy integration with transformers library
-- Version control for models
+- **Replicate API**: Fast cold starts (~few minutes), scalable inference (~3s), simple HTTP API
+- **Hugging Face Hub**: Private model hosting, easy transformers integration, version control
 
 ## 📊 Results & Performance
 
 ### Training Metrics
-- **Training Time**: 16 hours on H100 (final training)
-- **Final Loss**: ~1.7 (stable convergence from ~3.4)
-- **Cost**: ~$48 final training cost (16h × $3/h on H100), ~$100 total with experimentation
-- **Memory Usage**: ~7.8 GiB VRAM (very efficient with QLoRA)
-- **Throughput**: ~2,180 tokens/sec
-- **Convergence**: Smooth, no overfitting or gradient explosions
+- **Loss**: 3.4 → 1.7 (stable convergence over 8 epochs)
+- **Efficiency**: 7.8 GiB VRAM, 2,180 tokens/sec throughput
+- **Quality**: Smooth convergence, no overfitting or gradient explosions
 
 ### Quality Achievements
 - **Authentic Voice**: Successfully replicates personal conversation style
-- **Multilingual**: Natural French/English code-switching
+- **Multilingual**: Natural French/English code-switching  
 - **Context Awareness**: Maintains conversation flow with rolling context
 - **Style Transfer**: Mimics user's writing patterns, expressions, and casual tone
-- **Deployment Ready**: Clean FP16 model, multiple serving options
-
-### Technical Achievements
-- **Successful QLoRA**: 4-bit quantization with LoRA adapters
-- **Stable Training**: No gradient explosions or instability
-- **Efficient Memory**: Only ~7.8 GiB VRAM usage on H100
-- **Clean Merge**: Successful LoRA → FP16 conversion
-- **Multiple Deployment**: Telegram, Replicate, Hugging Face Hub ready
+- **Technical Success**: Stable QLoRA training, clean LoRA→FP16 merge, multiple deployment options
 
 ## 🔧 Data Processing Details
 
-### Supported Platforms
-- **WhatsApp**: TXT export files
-- **Telegram**: JSON export files  
-- **Messenger**: Facebook JSON exports
-
-### Processing Pipeline
-1. **Extract** messages from different export formats
-2. **Clean** and normalize text while preserving emojis and style
-3. **Detect** language per conversation (configurable filtering)
-4. **Filter** system messages and media notifications
-5. **Normalize** speakers (user → A:, others → B:)
-6. **Merge** consecutive messages from same speaker (< 3 min apart)
-7. **Segment** conversations (≥ 30 min gaps)
-8. **Generate** rolling windows for training
-9. **Format** as JSONL for completion training
+### Supported Platforms & Pipeline
+- **Platforms**: WhatsApp (TXT), Telegram (JSON), Messenger (JSON)
+- **Pipeline**: Extract → Clean → Language detect → Filter → Normalize speakers (A:/B:) → Merge consecutive → Segment conversations → Generate rolling windows → Format JSONL
 
 ### Language Filtering
 The notebooks use `langdetect` library for language detection. By default, they filter for French conversations, but you can easily modify this for other languages:
