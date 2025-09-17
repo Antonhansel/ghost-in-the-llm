@@ -106,4 +106,15 @@ class Predictor(BasePredictor):
                 eos_token_id=self.tok.eos_token_id,
                 pad_token_id=self.tok.pad_token_id,
             )
-        return self.tok.decode(out[0][input_ids.shape[-1]:], skip_special_tokens=True).rstrip()
+        # Decode the generated tokens
+        generated = self.tok.decode(out[0][input_ids.shape[-1]:], skip_special_tokens=True)
+        
+        # Post-process: Stop at unwanted continuations (B: responses, double newlines, etc.)
+        # This prevents the model from generating the other speaker's response
+        stop_markers = ["\nB:", "\n\n", "B:"]
+        for marker in stop_markers:
+            if marker in generated:
+                generated = generated.split(marker)[0]
+                break
+        
+        return generated.rstrip()

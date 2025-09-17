@@ -28,11 +28,11 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 | **Model** | Mistral-7B-v0.3 with QLoRA fine-tuning |
 | **Training** | 8 epochs, stable convergence (loss ~1.7) |
 | **Cost** | ~$48 final training (16h × $3/h on H100), ~$100 total with experimentation |
-| **Deployment** | Telegram bot, Replicate, or Hugging Face Hub |
+| **Deployment** | Replicate or Hugging Face Hub |
 
 ## 🚀 Key Features
 
-- **Simple Architecture**: Direct fine-tuning + Telegram bot - no complex RAG needed
+- **Simple Architecture**: Direct fine-tuning approach - no complex RAG needed
 - **Authentic Voice**: Train AI to chat exactly like you using 70k+ messages
 - **Multilingual Support**: Natural French/English code-switching
 - **Rolling Context**: Maintains conversation flow with last ~20 turns
@@ -91,7 +91,6 @@ ghost-in-the-shell/
 │   ├── merge_lora_fp16.py        # LoRA merging script
 │   ├── test_model.py             # Model testing script
 │   └── sanity_check.py           # Post-training validation
-├── telegram_bot/                 # Telegram bot for serving the model
 ├── replicate_deployment/         # Replicate deployment configuration
 ├── config/                       # Configuration files
 │   ├── training_config.yaml      # QLoRA training configuration
@@ -115,7 +114,7 @@ ghost-in-the-shell/
 2. **Clean** → Anonymize while preserving your authentic voice and style
 3. **Segment** → Create conversation windows with proper boundaries
 4. **Train** → Fine-tune Mistral-7B with QLoRA on your conversations
-5. **Deploy** → Serve via Telegram bot, Replicate, or Hugging Face Hub
+5. **Deploy** → Serve via Replicate or Hugging Face Hub
 
 ## 🛠️ Quick Start
 
@@ -172,14 +171,6 @@ Edit `config/user_config.json` to identify which senders are YOU:
 
 Follow the [Cloud Training Guide](#-cloud-training) to fine-tune Mistral-7B on your data.
 
-### Step 4: Deploy Your Bot
-
-Set up the Telegram bot to chat with your digital doppelgänger:
-
-```bash
-cd telegram_bot
-python bot.py --model-path /path/to/your/merged-model
-```
 
 ## ☁️ Cloud Training
 
@@ -277,7 +268,7 @@ With good training (loss < 1.0), you should see:
 TEST 1
 ==================================================
 Model is on device: cuda:0
-Input: A: I love you a lot do you want to see Dune this weekend?
+Input: A: Do you want to see Dune this weekend?
        B: Yes sounds good I love you too
        A:
 Output: "haha I just got the EDF bill we went a bit crazy this winter I think 😂"
@@ -368,22 +359,7 @@ git remote add origin https://huggingface.co/$HF_MODEL_ID
 git push -u origin main
 ```
 
-#### 7. Deploy with Replicate
-
-```bash
-cd replicate_deployment
-chmod +x scripts/download_weights.py
-HUGGING_FACE_HUB_TOKEN=*** python ./scripts/download_weights.py
-
-cog build
-cog run python ./preflight.py  # Should return all green
-
-# Deploy
-cog login
-cog push r8.im/your-user/ghost-in-the-llm
-```
-
-#### 8. Backup and Clean Up
+#### 7. Backup and Clean Up
 
 Before shutting down your instance, decide what to save:
 
@@ -416,22 +392,26 @@ scp -i ~/.ssh/your_lambda_key ubuntu@<INSTANCE_IP>:/home/ubuntu/axolotl/checkpoi
 
 **Important**: Always shut down your instance in Lambda Labs UI to avoid large bills!
 
-## 🤖 Deployment Options
+#### 8. Deploy with Replicate
 
-### Telegram Bot
 ```bash
-cd telegram_bot
-pip install python-telegram-bot
+cd replicate_deployment
+chmod +x scripts/download_weights.py
+HUGGING_FACE_HUB_TOKEN=*** python ./scripts/download_weights.py
 
-export TELEGRAM_BOT_TOKEN=your_bot_token
-export MODEL_PATH=/path/to/merged-mistral7b
+cog build
+cog run python ./preflight.py  # Should return all green
 
-python bot.py
+# Deploy
+cog login
+cog push r8.im/your-user/ghost-in-the-llm
 ```
 
+## 🤖 Deployment Options
+
 ### Replicate API
-- Fast cold starts with baked-in weights
-- Scalable inference
+- Fast-ish cold starts with baked-in weights (a few minutes)
+- Scalable inference, takes about 3s
 - Simple HTTP API
 
 ### Hugging Face Hub
