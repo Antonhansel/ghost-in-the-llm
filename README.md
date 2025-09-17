@@ -58,7 +58,7 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 
 ### Data Format
 ```jsonl
-{"text": "A: msg1\nB: msg2\n...\nA: target_response</s>"}
+{"text": "A: So first you can edit messages on telegram So correction messages with an asterisk there you go\nB: Are you giving me lessons? The guy with a hoodie photo? :p Ok ok it's new\nA: You look like a boomer using telegram\nB: I have trouble with my phone\nA: With your GSM 😂\nB: On my cellphone yes xD Coming from a thirty-something it's offensive\nA: Wowowow No insults Thirty-something calm down I'm two years older than you, when is your birthday?</s>"}
 ```
 
 **Key Principles**:
@@ -277,22 +277,23 @@ With good training (loss < 1.0), you should see:
 TEST 1
 ==================================================
 Model is on device: cuda:0
-Input: A: Salut comment ça va ?
-       B: Ça va bien et toi ?
+Input: A: I love you a lot do you want to see Dune this weekend?
+       B: Yes sounds good I love you too
        A:
-Output: "ça va super bien merci ! tu fais quoi ce soir ?"
+Output: "haha I just got the EDF bill we went a bit crazy this winter I think 😂"
 ✅ Good: No B: responses generated
-✅ Generated 42 characters
+✅ Generated 68 characters
 
 ==================================================
 TEST 2  
 ==================================================
-Input: A: Tu fais quoi ce soir ?
-       B: Rien de spécial, et toi ?
+Input: A: Can I finish or do you want some?
+       A: I'm hungry answer me hahaha
+       B: I'll be home in 10 mins I'm taking the 14 in 10 mins
        A:
-Output: "je sais pas encore, on peut se voir si tu veux"
+Output: "ok :) what do you want to eat? steak & fries?"
 ✅ Good: No B: responses generated
-✅ Generated 48 characters
+✅ Generated 45 characters
 ```
 
 #### Quality Indicators
@@ -503,9 +504,43 @@ def is_french_conversation(messages, sample_size=20):
 - **Privacy Protection**: Built-in PII masking
 - **Conversation Boundaries**: Proper segmentation and context windows
 
+## ⚠️ Known Limitations
+
+### Conversation Step Generation Issue
+
+**The Problem**: The model sometimes generates multiple conversation steps instead of stopping after generating the user's response (A:). Despite training with `</s>` end-of-sequence tokens, the model may generate:
+
+```
+A: ok :) what do you want to eat? steak & fries?
+B: Yes very good
+A: I'm in the 14 But there's a technical incident I'm near pont cardinet there
+```
+
+**Expected Behavior**: The model should stop after generating the first A: response:
+```
+A: ok :) what do you want to eat? steak & fries?</s>
+```
+
+**Current Workarounds**:
+- **Post-processing**: Test scripts include stop markers (`\nB:`, `\n\n`, `B:`) to truncate unwanted continuations
+- **Generation parameters**: Higher `repetition_penalty` (1.2-1.3) helps reduce the issue
+- **Manual monitoring**: Check test outputs for "⚠️ WARNING: Model generated B: response"
+
+**Why This Happens**: This appears to be a fundamental challenge with completion-based training on conversational data. Even with proper `</s>` token placement during training, the model learns the conversational pattern so strongly that it continues generating dialogue turns.
+
+**Attempted Solutions That Didn't Work**:
+- Training with `</s>` tokens after each A: response
+- Adjusting training parameters (learning rate, epochs, batch size)
+- Different prompt formatting strategies
+- Various generation parameters (temperature, top_p, top_k)
+
+This limitation means **post-processing is currently required** for production deployments to ensure clean single-response generation.
+
 ## 🤝 Contributing
 
 This project demonstrates that **simple approaches often work better**. If you have ideas for making it even simpler or more effective, contributions are welcome!
+
+**Particularly welcome**: Solutions to the conversation step generation issue above - this is the main unsolved technical challenge.
 
 ## 📄 License
 
