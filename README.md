@@ -94,17 +94,12 @@ ghost-in-the-shell/
 ### The Complete Pipeline
 
 1. **Parse** → Extract messages from WhatsApp, Telegram, Messenger exports
-2. **Clean** → Anonymize while preserving your authentic voice and style
+2. **Clean** → While preserving your authentic voice and style
 3. **Segment** → Create conversation windows with proper boundaries
 4. **Train** → Fine-tune Mistral-7B with QLoRA on your conversations
 5. **Deploy** → Serve via Replicate or Hugging Face Hub
 
-## 🛠️ Quick Start
-
-### Prerequisites
-- Python 3.8+
-- CUDA-compatible GPU (for training) or cloud GPU access
-- 16GB+ RAM recommended
+# 1. Data Preparation
 
 ### Installation
 
@@ -150,29 +145,15 @@ Edit `config/user_config.json` to identify which senders are YOU:
 3. **Run notebook 01**: `01_message_parsing.ipynb` - processes raw data
 4. **Run notebook 02**: `02_prepare_messages.ipynb` - creates JSONL training data
 
-### Step 3: Train Your Model
+# 2. Cloud Training
 
-Follow the [Cloud Training Guide](#-cloud-training) to fine-tune Mistral-7B on your data.
-
-
-## ☁️ Cloud Training
-
-### Why Cloud Training?
-
-- **Cost-effective**: ~$48 final training, ~$200 total with experimentation
-- **No Setup**: No local GPU setup required  
-- **Scalable**: Access to high-end hardware (H100, A100)
-- **Reliable**: Stable training environment
-
-### Training Setup
-
-#### 1. Setup Lambda Labs
+### Step 1: Setup Lambda Labs
 
 1. Create account at [cloud.lambda.ai](https://cloud.lambda.ai/instances)
 2. Add billing and SSH key
 3. Launch instance: **H100 PCIe** or **A100 40GB**, Lambda Stack 22.04
 
-#### 2. Prepare Environment
+### Step 2: Prepare Environment
 
 ```bash
 # SSH into your instance
@@ -190,7 +171,7 @@ cd axolotl && pip install -e .
 pip install bitsandbytes accelerate transformers datasets peft sentencepiece wandb "huggingface_hub>=0.24" huggingface_hub[cli]
 ```
 
-#### 3. Upload Your Data
+### Step 3: Upload Your Data
 
 ```bash
 # From your local machine
@@ -198,7 +179,7 @@ scp -i ~/.ssh/your_lambda_key train.jsonl val.jsonl ubuntu@<INSTANCE_IP>:/home/u
 scp -i ~/.ssh/your_lambda_key config/training_config.yaml ubuntu@<INSTANCE_IP>:/home/ubuntu/axolotl/
 ```
 
-#### 4. Start Training
+### Step 4: Start Training
 
 ```bash
 # Use tmux to keep training running
@@ -214,9 +195,7 @@ accelerate launch -m axolotl.cli.train training_config.yaml
 
 > **Tip**: Use `Ctrl+B, then D` to detach from tmux. Rejoin with `tmux attach`.
 
-### Post-Training Steps
-
-### 5. Test Your Model
+### Step 5: Test Your Model
 
 Before deploying, it's crucial to test your trained model to ensure it's generating authentic responses.
 
@@ -301,9 +280,7 @@ pip install transformers torch peft bitsandbytes sentencepiece
 python test_model.py --verbose
 ```
 
-
-
-#### 5. Merge LoRA Adapters
+### Step 6: Merge LoRA Adapters
 
 ```bash
 # Upload merge script
@@ -316,7 +293,7 @@ python merge_lora_fp16.py \
   --out ./merged-mistral7b
 ```
 
-#### 6. Upload to Hugging Face Hub
+### Step 7: Upload to Hugging Face Hub
 
 ```bash
 export HF_MODEL_ID=YourUsername/ghost-in-the-shell-mistral7b
@@ -340,7 +317,7 @@ git remote add origin https://huggingface.co/$HF_MODEL_ID
 git push -u origin main
 ```
 
-#### 7. Backup and Clean Up
+### Step 8: Backup and Clean Up
 
 Before shutting down your instance, decide what to save:
 
@@ -373,16 +350,26 @@ scp -i ~/.ssh/your_lambda_key ubuntu@<INSTANCE_IP>:/home/ubuntu/axolotl/checkpoi
 
 **Important**: Always shut down your instance in Lambda Labs UI to avoid large bills!
 
-#### 8. Deploy with Replicate
+# 3. Model Deployment
+
+### Step 1: Setup Replicate Deployment
 
 ```bash
 cd replicate_deployment
 chmod +x scripts/download_weights.py
 HUGGING_FACE_HUB_TOKEN=*** python ./scripts/download_weights.py
+```
 
+### Step 2: Build and Test
+
+```bash
 cog build
 cog run python ./preflight.py  # Should return all green
+```
 
+### Step 3: Deploy
+
+```bash
 # Deploy
 cog login
 cog push r8.im/your-user/ghost-in-the-llm
@@ -431,9 +418,8 @@ def is_french_conversation(messages, sample_size=20):
 - **Reduced confusion** - Avoid mixed language patterns during training
 
 ### Key Features
-- **Two Speakers Only**: A: (you) and B: (everyone else)
+- **Two Speakers Only**: A: (you) and B: (everyone else). Or set A: as someone else if you wan't to clone other people's tone 🥲
 - **Authentic Preservation**: Keep emojis, slang, natural style
-- **Privacy Protection**: Built-in PII masking
 - **Conversation Boundaries**: Proper segmentation and context windows
 
 ## ⚠️ Known Limitations
