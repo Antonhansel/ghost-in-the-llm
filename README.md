@@ -1,4 +1,4 @@
-# Ghost in the Shell: Your Digital Doppelgänger
+# Ghost in the LLM: Python notebooks to train an AI on your texts (or someone else's)
 
 A simple, effective approach to creating personalized AI that sounds exactly like you using just your text messages. Inspired by [Edward Donner's experiment](https://edwarddonner.com/2024/01/02/fine-tuning-an-llm-on-240k-text-messages/), but with a focus on simplicity and authenticity.
 
