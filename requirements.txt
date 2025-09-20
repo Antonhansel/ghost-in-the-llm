@@ -1,1 +1,24 @@
+# Core ML dependencies
+torch>=2.0.0
+transformers>=4.30.0
+datasets>=2.12.0
+accelerate>=0.20.0
+peft>=0.4.0
+bitsandbytes>=0.39.0
+
+# Data processing
+pandas>=1.5.0
 langdetect==1.0.9
+unicodedata2>=15.0.0
+
+# Training and evaluation
+wandb>=0.15.0
+huggingface_hub>=0.16.0
+safetensors>=0.3.0
+
+# Optional: Jupyter notebook dependencies
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# Deployment
+cog>=0.8.0
