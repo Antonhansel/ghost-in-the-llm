@@ -12,14 +12,14 @@ A simple, effective approach to creating personalized AI that sounds exactly lik
 *Complete training history showing iterative improvements and debugging phases*
 
 ![Final Successful Run](images/last_run_only.png)
-*Final 8-epoch training run with stable convergence (loss ~1.7)*
+*Final 8-epoch training run with stable convergence (loss ~0.9)*
 
 | Feature | Description |
 |---------|-------------|
 | **Input** | Variable context window (6-12 previous messages) |
 | **Output** | Next message as you would write it (style transfer, not Q&A) |
 | **Model** | Mistral-7B-v0.3 with QLoRA fine-tuning |
-| **Training** | 8 epochs, 16h on H100, stable convergence (loss 3.4→1.7) |
+| **Training** | 8 epochs, 16h on H100, stable convergence (loss 3.4→0.9) |
 | **Cost** | ~$48 final training, ~$200 total with experimentation |
 | **Memory** | ~7.8 GiB VRAM, ~2,180 tokens/sec |
 | **Deployment** | Replicate or Hugging Face Hub |
@@ -383,7 +383,7 @@ cog push r8.im/your-user/ghost-in-the-llm
 ## 📊 Results & Performance
 
 ### Training Metrics
-- **Loss**: 3.4 → 1.7 (stable convergence over 8 epochs)
+- **Loss**: 3.4 → 0.9 (stable convergence over 8 epochs)
 - **Efficiency**: 7.8 GiB VRAM, 2,180 tokens/sec throughput
 - **Quality**: Smooth convergence, no overfitting or gradient explosions
 
